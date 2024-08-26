@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing dependencies..."
+      - npm install
+      - echo "Running npm audit fix..."
+      - npm audit fix
+
+  build:
+    commands:
+      - echo "Building the Angular app..."
+      - npm run build
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: '/workspace/dist'
+
+cache:
+  paths:
+    - '/root/.npm/**/*'
+
+# Optionally, you can specify a timeout for the build
+timeout: 1200 seconds
+
+post_build:
+  commands:
+    - echo "Uploading build artifacts to S3..."
+    - aws s3 cp /workspace/dist/ s3://ang-test-bucket/ --recursive
